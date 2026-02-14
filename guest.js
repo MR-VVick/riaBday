@@ -19,22 +19,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            const formData = new FormData(wishForm);
-            // Safety: Explicitly set the form name again
-            formData.set('form-name', 'wishes');
-
             try {
                 saveBtn.disabled = true;
                 saveBtn.textContent = "Sending...";
 
-                // Submit to the current URL
+                // Simple encoding that Netlify prefers
+                const body = `form-name=wishes&name=${encodeURIComponent(name)}&message=${encodeURIComponent(text)}`;
+
                 const response = await fetch("/", {
                     method: "POST",
                     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                    body: new URLSearchParams(formData).toString(),
+                    body: body,
                 });
 
                 if (response.ok) {
+                    // Update local cache for immediate feedback
                     const newWish = { name, message: text, timestamp: new Date().toISOString() };
                     const currentWishes = JSON.parse(localStorage.getItem('Ria_wishes') || '[]');
                     currentWishes.push(newWish);
@@ -44,7 +43,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     nameInput.value = '';
                     alert("Wish sent to Ria! 💌");
                 } else {
-                    throw new Error("Failed to send wish");
+                    const errText = await response.text();
+                    console.error("Netlify rejected the submission:", errText);
+                    throw new Error(`Server returned ${response.status}`);
                 }
             } catch (error) {
                 console.error("Submission error:", error);
