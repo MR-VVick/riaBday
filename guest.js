@@ -20,11 +20,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const formData = new FormData(wishForm);
+            // Safety: Explicitly set the form name again
+            formData.set('form-name', 'wishes');
 
             try {
                 saveBtn.disabled = true;
                 saveBtn.textContent = "Sending...";
 
+                // Submit to the current URL
                 const response = await fetch("/", {
                     method: "POST",
                     headers: { "Content-Type": "application/x-www-form-urlencoded" },
