@@ -455,6 +455,12 @@ async function renderChatBubbles() {
             wishes = await response.json();
             // Optional: update local cache
             if (wishes.length > 0) {
+                // Deduplicate: filter out messages with same name and content
+                wishes = wishes.filter((wish, index, self) =>
+                    index === self.findIndex((t) => (
+                        t.name === wish.name && t.message === wish.message
+                    ))
+                );
                 localStorage.setItem('Ria_wishes', JSON.stringify(wishes));
             }
         } else {
