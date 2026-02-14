@@ -19,21 +19,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            // Exactly the code you had before, using URLSearchParams
+            const formData = new FormData();
+            formData.append('form-name', 'wishes');
+            formData.append('name', name);
+            formData.append('message', text);
+
             try {
                 saveBtn.disabled = true;
                 saveBtn.textContent = "Sending...";
 
-                // Simple encoding that Netlify prefers
-                const body = `form-name=wishes&name=${encodeURIComponent(name)}&message=${encodeURIComponent(text)}`;
-
                 const response = await fetch("/", {
                     method: "POST",
                     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                    body: body,
+                    body: new URLSearchParams(formData).toString(),
                 });
 
                 if (response.ok) {
-                    // Update local cache for immediate feedback
                     const newWish = { name, message: text, timestamp: new Date().toISOString() };
                     const currentWishes = JSON.parse(localStorage.getItem('Ria_wishes') || '[]');
                     currentWishes.push(newWish);
@@ -43,9 +45,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     nameInput.value = '';
                     alert("Wish sent to Ria! 💌");
                 } else {
-                    const errText = await response.text();
-                    console.error("Netlify rejected the submission:", errText);
-                    throw new Error(`Server returned ${response.status}`);
+                    console.error("Netlify error status:", response.status);
+                    throw new Error("Failed to send wish");
                 }
             } catch (error) {
                 console.error("Submission error:", error);
