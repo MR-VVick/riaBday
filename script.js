@@ -11,7 +11,7 @@ const CONFIG = {
     candleUrl: './candle.gltf',
     flameColor: 0xffaa00,
     flameScale: 1.0,
-    micThreshold: 20, // Volume threshold to trigger blowing
+    micThreshold: 40, // Increased threshold to avoid ambient noise triggering
     blowSensitivity: 0.05, // How fast flame shrinks
     pinkBalloonUrl: './pinkBalloon.gltf',
 };
@@ -235,8 +235,12 @@ window.addEventListener('pointerdown', (event) => {
    ========================================= */
 const startMicBtn = document.getElementById('start-mic-btn');
 const instructionText = document.getElementById('instruction-text');
+const tapHint = document.getElementById('tap-hint');
 
-startMicBtn.addEventListener('click', async () => {
+// Shared function to attempt mic access
+async function attemptMicAccess() {
+    if (state.isMicActive) return; // Already active
+
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
         state.audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -249,14 +253,45 @@ startMicBtn.addEventListener('click', async () => {
         state.dataArray = new Uint8Array(bufferLength);
 
         state.isMicActive = true;
-        startMicBtn.classList.add('hidden'); // Hide button
-        instructionText.classList.remove('hidden'); // Show instructions
+
+        // UI Updates for Success
+        if (startMicBtn) startMicBtn.classList.add('hidden');
+        if (instructionText) instructionText.classList.remove('hidden');
+        if (tapHint) tapHint.classList.add('hidden');
 
     } catch (err) {
-        console.error('Mic access denied:', err);
-        alert("Couldn't access microphone 😢. You can still tap the candles to blow them out!");
+        console.warn('Mic access denied or failed:', err);
+        // UI Updates for Failure (Fallback)
+        if (startMicBtn) startMicBtn.classList.add('hidden'); // Hide button anyway
+        if (instructionText) instructionText.classList.add('hidden');
+        if (tapHint) tapHint.classList.remove('hidden'); // Show tap hint
+
+        // Optional: Show a small toast or just rely on the visual hint
     }
+}
+
+// 1. Manual Click
+startMicBtn.addEventListener('click', (e) => {
+    e.stopPropagation(); // Prevent bubbling to global listener if we want precise control
+    attemptMicAccess();
 });
+
+// 2. Auto-attempt on first global interaction (mobile friendly)
+document.body.addEventListener('click', function autoMic() {
+    // Only try if not active and haven't tried yet
+    if (!state.isMicActive) {
+        attemptMicAccess();
+    }
+    // Remove listener after first try to avoid spamming
+    document.body.removeEventListener('click', autoMic);
+}, { once: true });
+
+document.body.addEventListener('touchstart', function autoMicTouch() {
+    if (!state.isMicActive) {
+        attemptMicAccess();
+    }
+    document.body.removeEventListener('touchstart', autoMicTouch);
+}, { once: true });
 
 function getAverageVolume() {
     if (!state.isMicActive) return 0;
@@ -295,19 +330,24 @@ function animate() {
     if (state.isMicActive && state.candlesExtinguished < state.totalCandles) {
         const volume = getAverageVolume();
 
-        if (volume > CONFIG.micThreshold) {
-            // Blowing detected! Reduce scale of ALL candles
-            candles.forEach(c => {
-                if (!c.isOut) {
-                    c.currentScale -= CONFIG.blowSensitivity;
-                    c.flameGroup.scale.setScalar(c.currentScale);
+        // Check each candle
+        candles.forEach(c => {
+            if (c.isOut) return;
 
-                    if (c.currentScale <= 0.1) {
-                        extinguishCandle(c);
-                    }
+            if (volume > CONFIG.micThreshold) {
+                // Blowing detected! Reduce scale
+                c.currentScale -= CONFIG.blowSensitivity;
+                if (c.currentScale <= 0.1) {
+                    extinguishCandle(c);
                 }
-            });
-        }
+            } else {
+                // Recovery: If not blowing, flame grows back
+                if (c.currentScale < 1.0) {
+                    c.currentScale += CONFIG.blowSensitivity * 0.5; // Recover at half speed
+                    if (c.currentScale > 1.0) c.currentScale = 1.0;
+                }
+            }
+        });
     }
 
     // 3. Balloon Animation (Overlay)
@@ -547,6 +587,10 @@ function triggerCelebration() {
     if (controls) {
         controls.classList.add('opacity-0', 'pointer-events-none');
     }
+
+    // Ensure tap hint is hidden
+    const tapHint = document.getElementById('tap-hint');
+    if (tapHint) tapHint.classList.add('hidden');
 
     // 6. Enable Scroll
     document.body.classList.remove('overflow-y-hidden');
