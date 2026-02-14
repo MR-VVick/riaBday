@@ -6,7 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load existing wishes
     const loadedWishes = JSON.parse(localStorage.getItem('Ria_wishes') || '[]');
 
-    saveBtn.addEventListener('click', () => {
+    saveBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+
         const text = wishInput.value.trim();
         const name = nameInput.value.trim();
 
@@ -19,13 +21,40 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Save as object
-        const newWish = { name, message: text, timestamp: new Date().toISOString() };
-        loadedWishes.push(newWish);
-        localStorage.setItem('Ria_wishes', JSON.stringify(loadedWishes));
+        // Prepare data for Netlify
+        const formData = new FormData();
+        formData.append('form-name', 'wishes');
+        formData.append('name', name);
+        formData.append('message', text);
 
-        wishInput.value = '';
-        nameInput.value = '';
-        alert("Wish sent to Ria! 💌");
+        try {
+            saveBtn.disabled = true;
+            saveBtn.textContent = "Sending...";
+
+            const response = await fetch("/", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: new URLSearchParams(formData).toString(),
+            });
+
+            if (response.ok) {
+                // Also save locally just in case/for immediate feedback
+                const newWish = { name, message: text, timestamp: new Date().toISOString() };
+                loadedWishes.push(newWish);
+                localStorage.setItem('Ria_wishes', JSON.stringify(loadedWishes));
+
+                wishInput.value = '';
+                nameInput.value = '';
+                alert("Wish sent to Ria! 💌");
+            } else {
+                throw new Error("Failed to send wish");
+            }
+        } catch (error) {
+            console.error("Submission error:", error);
+            alert("Oops! Something went wrong. Please try again later. 😅");
+        } finally {
+            saveBtn.disabled = false;
+            saveBtn.textContent = "Send Wish 🌠";
+        }
     });
 });

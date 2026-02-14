@@ -440,13 +440,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-function renderChatBubbles() {
+async function renderChatBubbles() {
     const container = document.getElementById('wishes-container');
     const noMsg = document.getElementById('no-wishes-msg');
 
     if (!container) return; // Not on Ria page or element missing
 
-    const wishes = JSON.parse(localStorage.getItem('Ria_wishes') || '[]');
+    let wishes = [];
+
+    try {
+        // Fetch from our secure Netlify Function
+        const response = await fetch('/.netlify/functions/get-wishes');
+        if (response.ok) {
+            wishes = await response.json();
+            // Optional: update local cache
+            if (wishes.length > 0) {
+                localStorage.setItem('Ria_wishes', JSON.stringify(wishes));
+            }
+        } else {
+            throw new Error("Function failed");
+        }
+    } catch (err) {
+        console.warn("Could not fetch shared wishes (site might not be deployed yet). Loading local ones.");
+        wishes = JSON.parse(localStorage.getItem('Ria_wishes') || '[]');
+    }
 
     if (wishes.length === 0) {
         if (noMsg) noMsg.classList.remove('hidden');
