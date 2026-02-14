@@ -1,61 +1,60 @@
-const fetch = require('node-fetch');
+// netlify/functions/get-wishes.js
+// NO require('node-fetch') needed
 
 exports.handler = async (event, context) => {
     const { NETLIFY_TOKEN, SITE_ID } = process.env;
 
-    const headers = {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*', // Allow cross-origin (good practice)
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'GET, OPTIONS'
-    };
-
-    // Handle preflight OPTIONS request
-    if (event.httpMethod === 'OPTIONS') {
-        return { statusCode: 204, headers };
-    }
-
     if (!NETLIFY_TOKEN || !SITE_ID) {
         return {
             statusCode: 500,
-            headers,
             body: JSON.stringify({ error: "Missing Environment Variables" })
         };
     }
 
     try {
-        // 1. Get the form ID
+        // Use global fetch (Node 18+)
         const formsRes = await fetch(`https://api.netlify.com/api/v1/sites/${SITE_ID}/forms`, {
             headers: { Authorization: `Bearer ${NETLIFY_TOKEN}` }
         });
+
+        if (!formsRes.ok) throw new Error(`Forms API: ${formsRes.status}`);
+
         const forms = await formsRes.json();
-        const wishForm = forms.find(f => f.name === 'wishes');
+        const wishForm = forms.find(f => f.name.toLowerCase() === 'wishes');
 
         if (!wishForm) {
-            return { statusCode: 200, headers, body: JSON.stringify([]) };
+            return {
+                statusCode: 200,
+                body: JSON.stringify([])
+            };
         }
 
-        // 2. Get submissions
         const subRes = await fetch(`https://api.netlify.com/api/v1/forms/${wishForm.id}/submissions`, {
             headers: { Authorization: `Bearer ${NETLIFY_TOKEN}` }
         });
+
+        if (!subRes.ok) throw new Error(`Submissions API: ${subRes.status}`);
+
         const submissions = await subRes.json();
 
         const wishes = submissions.map(sub => ({
-            name: sub.data.name,
-            message: sub.data.message,
+            name: sub.data.name || "Anonymous",
+            message: sub.data.message || "",
             timestamp: sub.created_at
-        }));
+        })).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
         return {
             statusCode: 200,
-            headers,
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*"   // change to your domain later
+            },
             body: JSON.stringify(wishes)
         };
     } catch (err) {
+        console.error(err);
         return {
             statusCode: 500,
-            headers,
             body: JSON.stringify({ error: err.message })
         };
     }
