@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday Ria! 🎉</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@300;500;800&display=swap"
+        rel="stylesheet">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Import Maps for Three.js -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+
+<body
+    class="bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 overflow-x-hidden overflow-y-hidden font-['Outfit'] text-slate-800">
+
+    <!-- Loading Screen -->
+    <div id="loading-screen"
+        class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-pink-50 transition-opacity duration-1000">
+        <div class="text-6xl animate-bounce">🎂</div>
+        <p class="mt-4 text-xl text-pink-500 font-bold">Baking the cake for Ria...</p>
+    </div>
+
+    <!-- Balloon Overlay -->
+    <div id="balloon-overlay" class="fixed inset-0 z-[60] pointer-events-none"></div>
+
+    <!-- Navigation -->
+    <nav id="main-nav"
+        class="fixed top-0 w-full z-40 px-6 py-4 flex justify-between items-center backdrop-blur-md bg-white/30 border-b border-white/20 opacity-0 pointer-events-none transition-opacity duration-1000">
+        <!-- Logo removed as requested -->
+        <div></div>
+        <div class="hidden md:flex gap-8 text-sm font-semibold tracking-wide text-slate-600">
+            <a href="#home" class="hover:text-pink-500 transition-colors flex items-center gap-2">
+                <i class="ph-fill ph-house text-lg"></i>
+                Home Sweet Home
+            </a>
+            <a href="#gallery" class="hover:text-pink-500 transition-colors flex items-center gap-2">
+                <i class="ph-fill ph-image text-lg"></i>
+                Memories
+            </a>
+            <a href="#wish" class="hover:text-pink-500 transition-colors flex items-center gap-2">
+                <i class="ph-fill ph-shooting-star text-lg"></i>
+                Make a Wish
+            </a>
+        </div>
+        <!-- Right side icons removed as requested -->
+        <div></div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="relative min-h-screen flex flex-col items-center pt-24 pb-10 overflow-hidden">
+
+        <!-- Number Vectors (2 & 6) -->
+
+
+        <!-- Floating Background Elements (Vectors) -->
+        <!-- Floating Background Elements (Vectors) -->
+        <div id="vector-container" class="absolute inset-0 pointer-events-none overflow-hidden">
+
+            <!-- Top Left: Pink Star (Floating) -->
+            <div class="absolute top-[15%] left-[15%] opacity-90 animate-float-slow filter drop-shadow-2xl">
+                <svg width="180" height="180" viewBox="0 0 24 24" fill="#F472B6" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2l2.4 7.2h7.6l-6 4.8 2.4 7.2-6-4.8-6 4.8 2.4-7.2-6-4.8h7.6z" stroke="#F472B6"
+                        stroke-width="4" stroke-linejoin="round" />
+                </svg>
+            </div>
+
+            <!-- Bottom Left: White Heart -->
+            <div class="absolute bottom-[25%] left-[10%] opacity-90 animate-float-medium filter drop-shadow-2xl">
+                <svg width="220" height="220" viewBox="0 0 24 24" fill="#FFFFFF" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                </svg>
+            </div>
+
+            <!-- Top Right: White Little Heart -->
+            <div
+                class="absolute top-[20%] right-[25%] opacity-80 animate-float-slow animation-delay-1000 filter drop-shadow-2xl">
+                <svg width="120" height="120" viewBox="0 0 24 24" fill="#FFFFFF" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                </svg>
+            </div>
+
+            <!-- Bottom Right: Purple Star -->
+            <div class="absolute bottom-[30%] right-[10%] opacity-90 animate-float-fast filter drop-shadow-2xl">
+                <svg width="200" height="200" viewBox="0 0 24 24" fill="#A78BFA" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2l2.4 7.2h7.6l-6 4.8 2.4 7.2-6-4.8-6 4.8 2.4-7.2-6-4.8h7.6z" stroke="#A78BFA"
+                        stroke-width="4" stroke-linejoin="round" />
+                </svg>
+            </div>
+
+            <!-- Extras: Small floating shapes -->
+            <div class="absolute bottom-[15%] left-[40%] opacity-60 animate-float-slow">
+                <svg width="60" height="60" viewBox="0 0 24 24" fill="#BAE6FD" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="20" height="20" rx="4" />
+                </svg>
+            </div>
+            <div class="absolute top-[40%] right-[5%] opacity-60 animate-float-medium">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="#FBCFE8" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" />
+                </svg>
+            </div>
+
+        </div>
+
+        <!-- Main Title -->
+        <div class="text-center z-10 mb-2 px-4">
+            <h1 class="text-5xl md:text-7xl font-extrabold drop-shadow-xl text-white outline-text tracking-tight mb-2">
+                HAPPY BIRTHDAY
+            </h1>
+            <h1
+                class="text-6xl md:text-8xl font-black bg-gradient-to-r from-pink-500 via-rose-400 to-yellow-500 bg-clip-text text-transparent transform -rotate-2 inline-block">
+                RIA!
+            </h1>
+            <p
+                class="mt-4 text-lg md:text-xl text-slate-600 font-light bg-white/60 px-6 py-2 rounded-full inline-block backdrop-blur-sm shadow-sm">
+                Make a wish... then blow out the candles 🎂🕯️❤️
+            </p>
+        </div>
+
+        <!-- 3D Canvas Container -->
+        <div id="canvas-container" class="w-full h-[50vh] md:h-[60vh] z-10 relative cursor-grab active:cursor-grabbing">
+            <!-- Canvas injected by Three.js -->
+
+            <!-- Number Vectors (2 & 6) -->
+            <div id="number-vectors"
+                class="absolute bottom-[5%] left-1/2 -translate-x-1/2 z-20 pointer-events-none flex gap-4 opacity-0 transition-all duration-1000 transform translate-y-8">
+                <div
+                    class="text-[12rem] md:text-[16rem] font-black gradient-text animate-float-slow transform -rotate-6 drop-shadow-2xl leading-none">
+                    2
+                </div>
+                <div
+                    class="text-[12rem] md:text-[16rem] font-black gradient-text animate-float-medium transform rotate-6 drop-shadow-2xl leading-none">
+                    6
+                </div>
+            </div>
+        </div>
+
+        <!-- Interaction Controls -->
+        <div id="interaction-controls"
+            class="z-20 flex flex-col items-center gap-4 -mt-10 transition-opacity duration-500">
+            <button id="start-mic-btn"
+                class="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-8 py-3 rounded-full text-lg font-bold shadow-lg hover:shadow-pink-500/50 hover:scale-105 transition-all flex items-center gap-2">
+                🎤 Start Blowing Candles
+            </button>
+            <p id="instruction-text" class="text-sm text-slate-500 hidden">
+                Mic active! Blow into your microphone to extinguish the flames.
+            </p>
+            <p class="text-xs text-slate-400">
+                (Or tap the candles if you're shy)
+            </p>
+        </div>
+    </section>
+
+    <!-- Content Section (Initially Hidden) -->
+    <div id="celebration-content" class="opacity-0 transition-opacity duration-2000 pointer-events-none">
+
+        <!-- Memory Gallery -->
+        <section id="gallery" class="py-20 px-4 md:px-10 max-w-7xl mx-auto">
+            <h2 class="text-4xl font-bold text-center mb-16 text-slate-800">Our Favorite Moments ❤️</h2>
+
+            <div id="photo-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 p-4">
+                <!-- Javascript will populate photos here -->
+            </div>
+        </section>
+
+        <!-- Special Message -->
+        <section class="py-20 bg-white/50 backdrop-blur-md">
+            <div class="max-w-3xl mx-auto px-6 text-center">
+                <h2 class="text-3xl font-bold mb-8 text-pink-600">A Special Message From Sahil</h2>
+                <div class="prose prose-lg mx-auto text-slate-700 italic leading-relaxed">
+                    <p>
+                        "Dearest Ria, <br><br>
+                        Another year around the sun, and you shine brighter than ever.
+                        I built this little digital corner just for you, to remind you of how special you are to me.
+                        May your day be filled with as much joy, laughter, and love as you bring into my life every
+                        single day.
+                        <br><br>
+                        Happy Birthday, my love! ❤️"
+                    </p>
+                </div>
+            </div>
+        </section>
+
+
+
+
+
+        <!-- Wall of Love (Wishes from Guests) -->
+        <section id="wall-of-love" class="py-20 px-4 md:px-10 max-w-6xl mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-12 text-pink-600 flex items-center justify-center gap-3">
+                <i class="ph-fill ph-chat-circle-heart text-4xl"></i>
+                Wall of Love
+            </h2>
+
+            <div id="wishes-container" class="flex flex-wrap justify-center gap-6">
+                <!-- Chat bubbles will be injected here by Javascript -->
+                <p id="no-wishes-msg" class="text-slate-400 italic w-full text-center hidden">No wishes yet... tell your
+                    friends to visit! 💌</p>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="py-10 text-center text-slate-500 text-sm">
+            <p>Made with all my love by Sahil ❤️</p>
+            <p class="mt-2 text-xs opacity-60">© 2026 Forever & Always</p>
+        </footer>
+    </div>
+
+    <!-- Audio Element -->
+    <!-- Placeholder: Happy Birthday Instrumental -->
+    <audio id="bg-music" loop>
+        <source src="./assets/Tum Se Hi Jab We Met 128 Kbps.mp3" type="audio/mpeg">
+        Your browser does not support audio.
+    </audio>
+
+    <!-- Main Script -->
+    <script type="module" src="script.js"></script>
+</body>
+
+</html>
